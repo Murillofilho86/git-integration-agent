@@ -1,0 +1,63 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+
+.vscode/
+.idea/
+
+# OS
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+.directory
+
+# Environment
+
+.env
+.env.*
+*.env
+
+# Secrets
+
+secrets/
+credentials.json
+config.local.json
+metadata.json
+
+# Generated Analysis
+
+analysis/
+workspace/*
+!workspace/.gitkeep
+reports/
+cache/
+tmp/
+
+# Logs
+
+logs/
+*.log
+
+# Local Databases
+
+*.db
+*.sqlite
+*.sqlite3
+
+# AI Outputs
+
+outputs/
+classifications/
+
