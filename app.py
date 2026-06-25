@@ -6,6 +6,12 @@ from analyzers.git_analyzer import GitAnalyzer
 from generators.analysis_package_generator import (
     AnalysisPackageGenerator
 )
+from classifiers.integration_classifier import (
+    IntegrationClassifier
+)
+from agents.prompt_generator import (
+    PromptGenerator
+)
 
 app = typer.Typer()
 
@@ -66,20 +72,98 @@ def analyze(
 
     typer.echo("")
     typer.echo("=" * 50)
+    typer.echo("ANALYSIS")
+    typer.echo("=" * 50)
+    typer.echo("")
     typer.echo(f"FROM : {from_ref}")
     typer.echo(f"TO   : {to_ref}")
-    typer.echo("=" * 50)
     typer.echo("")
     typer.echo(f"Commits exclusivos : {commits}")
     typer.echo(f"Arquivos alterados : {files}")
     typer.echo(f"Idade da branch    : {age} dias")
     typer.echo("")
-    typer.echo(
-        f"Artefatos gerados em:"
+    typer.echo("Artefatos gerados em:")
+    typer.echo(f"{analysis_dir.resolve()}")
+    typer.echo("")
+
+
+@app.command()
+def classify(
+    workspace: str = typer.Option(
+        ...,
+        "--workspace",
+        help="Diretório da análise"
     )
-    typer.echo(
-        f"{analysis_dir.resolve()}"
+):
+
+    workspace_path = Path(workspace)
+
+    if not workspace_path.exists():
+        raise typer.BadParameter(
+            f"Workspace não encontrado: {workspace}"
+        )
+
+    classifier = IntegrationClassifier()
+
+    result = classifier.classify(
+        workspace
     )
+
+    typer.echo("")
+    typer.echo("=" * 50)
+    typer.echo("CLASSIFICATION")
+    typer.echo("=" * 50)
+    typer.echo("")
+
+    typer.echo(
+        f"Strategy  : {result['strategy']}"
+    )
+
+    typer.echo(
+        f"Confidence: {result['confidence']}"
+    )
+
+    typer.echo("")
+
+    typer.echo("Reasons:")
+
+    for reason in result["reasons"]:
+        typer.echo(
+            f"- {reason}"
+        )
+
+    typer.echo("")
+
+
+@app.command(name="generate-prompt")
+def generate_prompt(
+    workspace: str = typer.Option(
+        ...,
+        "--workspace",
+        help="Diretório da análise"
+    )
+):
+
+    workspace_path = Path(workspace)
+
+    if not workspace_path.exists():
+        raise typer.BadParameter(
+            f"Workspace não encontrado: {workspace}"
+        )
+
+    generator = PromptGenerator()
+
+    output_file = generator.generate(
+        workspace
+    )
+
+    typer.echo("")
+    typer.echo("=" * 50)
+    typer.echo("PROMPT GENERATED")
+    typer.echo("=" * 50)
+    typer.echo("")
+    typer.echo(f"Arquivo gerado:")
+    typer.echo(output_file)
     typer.echo("")
 
 
