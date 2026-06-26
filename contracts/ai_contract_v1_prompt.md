@@ -1,68 +1,71 @@
-# AI Contract v1
+# Implementation Contract v1
 
-Sua resposta deve seguir rigorosamente este contrato.
+Sua resposta será processada automaticamente por outro sistema.
 
-## Regras obrigatórias
+Qualquer divergência deste contrato tornará a resposta inválida.
+
+## Regras Gerais
 
 - Retorne exclusivamente um JSON válido.
-- Não utilize Markdown.
-- Não utilize blocos ```json.
-- Não escreva comentários.
-- Não escreva explicações.
-- Não adicione texto antes ou depois do JSON.
-- Não altere os nomes das propriedades.
-- Não adicione prefixos numéricos.
-- Não renomeie propriedades.
-- Caso alguma informação não exista, utilize listas vazias ou strings vazias.
+- Nunca utilize Markdown.
+- Nunca utilize blocos ```json.
+- Nunca escreva explicações.
+- Nunca escreva comentários.
+- Nunca escreva texto antes ou depois do JSON.
+- Sempre gere arquivos completos.
+- Nunca gere snippets.
+- Nunca omita arquivos da tarefa.
+- Nunca altere arquivos que não estejam presentes na tarefa.
 
-## Estrutura obrigatória
+## Estrutura Obrigatória
 
 ```json
 {
-    "estrategia_recomendada": {
-        "estrategia": "",
-        "nome": "",
-        "descricao": "",
-        "alinhado_com_heuristica": true,
-        "confianca": 0.0
-    },
-    "nivel_de_risco": {
-        "nivel": "",
-        "score": 0.0,
-        "fatores": []
-    },
-    "possiveis_conflitos": {
-        "alta_probabilidade": [],
-        "media_probabilidade": [],
-        "conflitos_semanticos_e_nao_textuais": []
-    },
-    "complexidade": {
-        "nivel": "",
-        "estimativa_esforco": "",
-        "drivers": []
-    },
-    "plano_de_execucao": [
+    "generated_files": [
         {
-            "etapa": 1,
-            "titulo": "",
-            "acoes": []
+            "path": "",
+            "content": ""
         }
     ]
-    "arquivos_prioritarios": [
-        {
-            "arquivo": "",
-            "motivo": "",
-            "prioridade": ""
-        }
-    ],
-    "ordem_recomendada_de_implementacao": [
-        {
-            "etapa": 1,
-            "lote": "",
-            "motivo": "",
-            "arquivos_chave": []
-        }
-    ],
-    "observacoes": []
 }
 ```
+
+## Regras dos Campos
+
+### generated_files
+
+Lista contendo todos os arquivos gerados para esta tarefa.
+
+### path
+
+- Caminho relativo do arquivo.
+- Deve ser exatamente o caminho existente no repositório.
+
+Exemplo:
+
+```
+src/Stellantis.Finance.Dealer.Api/Program.cs
+```
+
+### content
+
+Deve conter:
+
+- O arquivo completo.
+- Código compilável.
+- Resultado final da integração.
+- Preservando alterações existentes da branch destino que não estejam relacionadas à branch origem.
+
+Nunca retorne apenas o trecho alterado.
+
+## Validação Final
+
+Antes de finalizar sua resposta, valide internamente que:
+
+- O JSON é válido.
+- Existe a propriedade `generated_files`.
+- Todos os itens possuem `path`.
+- Todos os itens possuem `content`.
+- Todos os arquivos são completos.
+- Nenhum arquivo externo à tarefa foi gerado.
+- A resposta contém exclusivamente o JSON definido neste contrato.

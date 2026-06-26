@@ -4,19 +4,37 @@ import json
 
 from core.configuration_manager import ConfigurationManager
 
+
+
 class ClaudeCliRunner:
+
+    def __init__(
+        self
+    ):
+
+        self._configuration = (
+            ConfigurationManager()
+        )
 
     def _get_claude_path(
         self
     ) -> str:
 
         configuration = (
-            ConfigurationManager()
+            self._configuration.load()
         )
 
         claude_path = (
-            configuration.get_claude_path()
+            configuration.get(
+                "claude_path"
+            )
         )
+
+        if not claude_path:
+
+            raise RuntimeError(
+                "Configuração 'claude_path' não encontrada."
+            )
 
         if not Path(
             claude_path
@@ -27,45 +45,44 @@ class ClaudeCliRunner:
             )
 
         return claude_path
-    
-    
+
     def run(
         self,
-        workspace_path: str
+        workspace_path: str,
+        prompt_file: str = "integration-prompt.md",
+        response_file: str = "claude-response.json",
+        session_file: str = "claude-session.md"
     ) -> str:
 
         workspace = Path(
             workspace_path
         )
 
-        prompt_file = (
+        prompt = (
             workspace /
-            "integration-prompt.md"
+            prompt_file
         )
 
-        if not prompt_file.exists():
+        if not prompt.exists():
 
             raise RuntimeError(
-                "Arquivo integration-prompt.md não encontrado."
+                f"Prompt não encontrado: {prompt}"
             )
 
-        prompt = (
-            prompt_file.read_text(
-                encoding="utf-8"
-            )
+        claude_path = (
+            self._get_claude_path()
         )
 
         result = subprocess.run(
             [
-                self._get_claude_path(),
-                "-p",
-                prompt,
-                "--output-format",
-                "json"
+                claude_path,
+                "--print"
             ],
+            input=prompt.read_text(
+                encoding="utf-8"
+            ),
             capture_output=True,
-            text=True,
-            encoding="utf-8"
+            text=True
         )
 
         if result.returncode != 0:
@@ -74,56 +91,34 @@ class ClaudeCliRunner:
                 result.stderr
             )
 
-        response_json = json.loads(
-            result.stdout
-        )
+        response_json = {
+            "result": result.stdout
+        }
 
-        if response_json.get(
-            "is_error"
-        ):
-
-            raise RuntimeError(
-                response_json.get(
-                    "result",
-                    "Erro desconhecido retornado pelo Claude."
-                )
-            )
-
-        response_content = (
-            result.stdout
-        )
-
-        response_file = (
+        response_output = (
             workspace /
-            "claude-response.json"
+            response_file
         )
 
-        response_file.write_text(
-            response_content,
+        response_output.write_text(
+            json.dumps(
+                response_json,
+                indent=4,
+                ensure_ascii=False
+            ),
             encoding="utf-8"
         )
 
-        session_file = (
+        session_output = (
             workspace /
-            "claude-session.md"
+            session_file
         )
 
-        session_file.write_text(
-            f"""# Claude Session
-
-## Prompt
-
-{prompt}
-
----
-
-## Response
-
-{response_content}
-""",
+        session_output.write_text(
+            result.stdout,
             encoding="utf-8"
         )
 
         return str(
-            response_file
+            response_output
         )
