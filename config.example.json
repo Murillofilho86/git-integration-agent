@@ -1,0 +1,9 @@
+{
+    "claude": {
+        "path": "/path/to/claude"
+    },
+
+    "workspace": {
+        "root": "workspace"
+    }
+}

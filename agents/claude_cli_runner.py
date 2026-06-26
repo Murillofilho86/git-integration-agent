@@ -1,7 +1,7 @@
 from pathlib import Path
-import json
 import subprocess
 
+from core.configuration_manager import ConfigurationManager
 
 class ClaudeCliRunner:
 
@@ -9,31 +9,13 @@ class ClaudeCliRunner:
         self
     ) -> str:
 
-        config_file = Path(
-            "config.json"
+        configuration = (
+            ConfigurationManager()
         )
 
-        if not config_file.exists():
-
-            raise RuntimeError(
-                "Arquivo config.json não encontrado."
-            )
-
-        config = json.loads(
-            config_file.read_text(
-                encoding="utf-8"
-            )
+        claude_path = (
+            configuration.get_claude_path()
         )
-
-        claude_path = config.get(
-            "claude_path"
-        )
-
-        if not claude_path:
-
-            raise RuntimeError(
-                "Configuração 'claude_path' não encontrada."
-            )
 
         if not Path(
             claude_path
@@ -44,7 +26,8 @@ class ClaudeCliRunner:
             )
 
         return claude_path
-
+    
+    
     def run(
         self,
         workspace_path: str
