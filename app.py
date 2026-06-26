@@ -16,12 +16,13 @@ from agents.task_tracker import TaskTracker
 from analyzers.git_analyzer import GitAnalyzer
 from classifiers.integration_classifier import IntegrationClassifier
 from generators.analysis_package_generator import AnalysisPackageGenerator
-from agents.change_inspector import (ChangeInspector)
-from agents.instruction_generator import (InstructionGenerator)
+from agents.change_inspector import ChangeInspector
+from agents.instruction_generator import InstructionGenerator
 from agents.integration_guide_generator import  IntegrationGuideGenerator
-from agents.implementation_plan_generator import (ImplementationPlanGenerator)
+from agents.implementation_plan_generator import ImplementationPlanGenerator
 from agents.prompt_generator import PromptGenerator
 from agents.claude_cli_runner import ClaudeCliRunner
+from agents.claude_response_parser import ClaudeResponseParser
 
 app = typer.Typer()
 
@@ -172,13 +173,23 @@ def integrate_feature(
     runner = (
         ClaudeCliRunner()
     )
-
+    
     response_file = (
         runner.run(
             workspace
         )
     )
-
+    
+    parser = (
+        ClaudeResponseParser()
+    )
+    
+    analysis_file = (
+        parser.parse(
+            workspace
+        )    
+    )   
+     
     session_file = str(
         Path(
             workspace
@@ -226,6 +237,10 @@ def integrate_feature(
     typer.echo(
         session_file
     )
+    typer.echo("")
+    
+    typer.echo("Integration Analysis:")
+    typer.echo(analysis_file)
     typer.echo("")
 
 @app.command(name="import-plan")
