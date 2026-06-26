@@ -1,4 +1,6 @@
 from pathlib import Path
+from rich.console import Console
+console = Console()
 import typer
 
 from agents.change_extractor import ChangeExtractor
@@ -326,62 +328,163 @@ def show_plan(
 
 @app.command(name="next-task")
 def next_task(
-    workspace: str = typer.Option(..., "--workspace", help="Workspace da análise"),
+
+    workspace: str = typer.Option(
+        ...,
+        "--workspace",
+        help="Workspace da integração."
+    )
+
 ):
-    workspace_path = Path(workspace)
 
-    if not workspace_path.exists():
-        raise typer.BadParameter(f"Workspace não encontrado: {workspace}")
+    tracker = (
+        TaskTracker()
+    )
 
-    navigator = ExecutionNavigator()
-    result = navigator.get_next_task(workspace)
+    task = (
+        tracker.current_task(
+            workspace
+        )
+    )
 
-    typer.echo("")
-    typer.echo("=" * 50)
-    typer.echo("NEXT TASK")
-    typer.echo("=" * 50)
-    typer.echo("")
+    total = (
+        tracker.total_tasks(
+            workspace
+        )
+    )
 
-    if not result["has_task"]:
-        typer.echo("Plano concluído.")
-        typer.echo("")
+    state = (
+        tracker.load_state(
+            workspace
+        )
+    )
+
+    if task is None:
+
+        console.print(
+            "\n[green]Todas as tarefas foram concluídas.[/green]"
+        )
+
         return
 
-    typer.echo(f"Tarefa #{result['index'] + 1}")
-    typer.echo("")
-    typer.echo(result["task"])
-    typer.echo("")
+    console.print(
+        "\n=================================================="
+    )
 
+    console.print(
+        f"TASK {state['current'] + 1} OF {total}"
+    )
+
+    console.print(
+        "=================================================="
+    )
+
+    console.print(
+        f"\n[bold]Título:[/bold]\n{task['title']}"
+    )
+
+    console.print(
+        f"\n[bold]Motivo:[/bold]\n{task['reason']}"
+    )
+
+    console.print(
+        "\n[bold]Arquivos:[/bold]"
+    )
+
+    for file in task["files"]:
+
+        console.print(
+            f" • {file}"
+        )
 
 @app.command(name="complete-task")
 def complete_task(
-    workspace: str = typer.Option(..., "--workspace", help="Workspace da análise"),
+
+    workspace: str = typer.Option(
+        ...,
+        "--workspace",
+        help="Workspace da integração."
+    )
+
 ):
-    workspace_path = Path(workspace)
 
-    if not workspace_path.exists():
-        raise typer.BadParameter(f"Workspace não encontrado: {workspace}")
+    tracker = (
+        TaskTracker()
+    )
 
-    navigator = ExecutionNavigator()
-    plan = navigator.get_plan(workspace)
-    total_tasks = len(plan.get("plan", []))
+    result = (
+        tracker.complete_current_task(
+            workspace
+        )
+    )
 
-    tracker = TaskTracker()
-    result = tracker.complete_current_task(workspace, total_tasks)
+    if not result["completed"]:
 
-    typer.echo("")
-    typer.echo("=" * 50)
-    typer.echo("TASK COMPLETED")
-    typer.echo("=" * 50)
-    typer.echo("")
+        console.print(
+            "\n[green]Todas as tarefas já foram concluídas.[/green]"
+        )
+
+        return
+
+    console.print(
+        "\n[green]✓ Tarefa concluída com sucesso.[/green]"
+    )
 
     if result["finished"]:
-        typer.echo("Plano totalmente concluído.")
-    else:
-        typer.echo("Tarefa marcada como concluída.")
 
-    typer.echo("")
+        console.print(
+            "\n[bold green]Todas as tarefas foram concluídas.[/bold green]"
+        )
 
+        return
+
+    task = (
+        tracker.current_task(
+            workspace
+        )
+    )
+
+    state = (
+        tracker.load_state(
+            workspace
+        )
+    )
+
+    total = (
+        tracker.total_tasks(
+            workspace
+        )
+    )
+
+    console.print(
+        "\n=================================================="
+    )
+
+    console.print(
+        f"TASK {state['current'] + 1} OF {total}"
+    )
+
+    console.print(
+        "=================================================="
+    )
+
+    console.print(
+        f"\n[bold]Título:[/bold]\n{task['title']}"
+    )
+
+    console.print(
+        f"\n[bold]Motivo:[/bold]\n{task['reason']}"
+    )
+
+    console.print(
+        "\n[bold]Arquivos:[/bold]"
+    )
+
+    for file in task["files"]:
+
+        console.print(
+            f" • {file}"
+        )
 
 @app.command(name="expand-task")
 def expand_task(

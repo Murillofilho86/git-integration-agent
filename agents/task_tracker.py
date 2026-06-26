@@ -1,9 +1,20 @@
-
 import json
 from pathlib import Path
 
+from agents.task_plan_reader import (
+    TaskPlanReader
+)
+
 
 class TaskTracker:
+
+    def __init__(
+        self
+    ):
+
+        self._reader = (
+            TaskPlanReader()
+        )
 
     def _state_file(
         self,
@@ -51,7 +62,7 @@ class TaskTracker:
         self,
         workspace: str,
         state: dict
-    ):
+    ) -> None:
 
         state_file = self._state_file(
             workspace
@@ -65,14 +76,42 @@ class TaskTracker:
             encoding="utf-8"
         )
 
+    def current_task(
+        self,
+        workspace: str
+    ) -> dict | None:
+
+        state = self.load_state(
+            workspace
+        )
+
+        return self._reader.get_task(
+            workspace,
+            state["current"]
+        )
+
+    def total_tasks(
+        self,
+        workspace: str
+    ) -> int:
+
+        return self._reader.total_tasks(
+            workspace
+        )
+
     def complete_current_task(
         self,
-        workspace: str,
-        total_tasks: int
+        workspace: str
     ) -> dict:
 
         state = self.load_state(
             workspace
+        )
+
+        total_tasks = (
+            self.total_tasks(
+                workspace
+            )
         )
 
         current = state["current"]
@@ -85,6 +124,7 @@ class TaskTracker:
             }
 
         if current not in state["completed"]:
+
             state["completed"].append(
                 current
             )
