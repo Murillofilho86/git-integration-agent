@@ -1,4 +1,4 @@
-# Implementation Contract v1
+# AI Contract v1
 
 Sua resposta será processada automaticamente por outro sistema.
 
@@ -12,19 +12,59 @@ Qualquer divergência deste contrato tornará a resposta inválida.
 - Nunca escreva explicações.
 - Nunca escreva comentários.
 - Nunca escreva texto antes ou depois do JSON.
-- Sempre gere arquivos completos.
-- Nunca gere snippets.
-- Nunca omita arquivos da tarefa.
-- Nunca altere arquivos que não estejam presentes na tarefa.
+- Não omita nenhuma propriedade obrigatória.
+- Caso alguma informação não possa ser determinada, utilize:
+  - String vazia ("")
+  - Lista vazia ([])
+  - Objeto vazio ({})
+- Nunca substitua objetos por texto livre.
 
 ## Estrutura Obrigatória
 
 ```json
 {
-    "generated_files": [
+    "estrategia_recomendada": {
+        "estrategia": "",
+        "nome": "",
+        "descricao": "",
+        "alinhado_com_heuristica": false,
+        "confianca": 0.0
+    },
+    "nivel_de_risco": {
+        "nivel": "",
+        "score": 0.0,
+        "fatores": []
+    },
+    "possiveis_conflitos": {
+        "alta_probabilidade": [],
+        "media_probabilidade": [],
+        "conflitos_semanticos_e_nao_textuais": []
+    },
+    "complexidade": {
+        "nivel": "",
+        "estimativa_esforco": "",
+        "drivers": []
+    },
+    "plano_de_execucao": [
         {
-            "path": "",
-            "content": ""
+            "etapa": 1,
+            "titulo": "",
+            "acoes": []
+        }
+    ],
+    "arquivos_prioritarios": [
+        {
+            "arquivo": "",
+            "motivo": "",
+            "prioridade": ""
+        }
+    ],
+    "ordem_recomendada_de_implementacao": [
+        {
+            "etapa": 1,
+            "lote": "",
+            "motivo": "",
+            "arquivos_chave": []
         }
     ]
 }
@@ -32,40 +72,79 @@ Qualquer divergência deste contrato tornará a resposta inválida.
 
 ## Regras dos Campos
 
-### generated_files
+### estrategia_recomendada
 
-Lista contendo todos os arquivos gerados para esta tarefa.
+Descreva a estratégia mais adequada para integrar a branch de origem na branch de destino.
 
-### path
+### nivel_de_risco
 
-- Caminho relativo do arquivo.
-- Deve ser exatamente o caminho existente no repositório.
+Avalie o risco global da integração.
 
-Exemplo:
+Inclua:
 
-```
-src/Stellantis.Finance.Dealer.Api/Program.cs
-```
+- nível
+- score
+- fatores
 
-### content
+### possiveis_conflitos
 
-Deve conter:
+Liste:
 
-- O arquivo completo.
-- Código compilável.
-- Resultado final da integração.
-- Preservando alterações existentes da branch destino que não estejam relacionadas à branch origem.
+- arquivos com alta probabilidade de conflito;
+- arquivos com média probabilidade;
+- conflitos semânticos.
 
-Nunca retorne apenas o trecho alterado.
+### complexidade
+
+Avalie:
+
+- nível;
+- estimativa de esforço;
+- fatores que justificam a complexidade.
+
+### plano_de_execucao
+
+Lista ordenada de etapas necessárias para executar a integração.
+
+Cada item deve conter:
+
+- etapa
+- titulo
+- acoes
+
+### arquivos_prioritarios
+
+Liste os arquivos mais importantes para iniciar a integração.
+
+Cada item deve conter:
+
+- arquivo
+- motivo
+- prioridade
+
+Prioridade sugerida:
+
+- ALTA
+- MEDIA
+- BAIXA
+
+### ordem_recomendada_de_implementacao
+
+Defina a ordem lógica para implementação.
+
+Cada item deve conter:
+
+- etapa
+- lote
+- motivo
+- arquivos_chave
 
 ## Validação Final
 
 Antes de finalizar sua resposta, valide internamente que:
 
 - O JSON é válido.
-- Existe a propriedade `generated_files`.
-- Todos os itens possuem `path`.
-- Todos os itens possuem `content`.
-- Todos os arquivos são completos.
-- Nenhum arquivo externo à tarefa foi gerado.
-- A resposta contém exclusivamente o JSON definido neste contrato.
+- Todas as propriedades obrigatórias existem.
+- Todos os objetos possuem a estrutura definida.
+- Todas as listas possuem objetos no formato correto.
+- Não existe texto antes ou depois do JSON.

@@ -1,5 +1,8 @@
 from pathlib import Path
 from rich.console import Console
+
+from agents.implementation_response_parser import ImplementationResponseParser
+from agents.implementation_runner import ImplementationRunner
 console = Console()
 import typer
 
@@ -193,7 +196,13 @@ def integrate_feature(
             workspace
         )
     )
-
+    tracker = (
+        TaskTracker()
+    )
+    
+    tracker.load_state(
+        workspace
+    )
     task_plan_builder = (
         TaskPlanBuilder()
     )
@@ -203,7 +212,36 @@ def integrate_feature(
             workspace
         )
     )
+    task = (
+        tracker.current_task(
+            workspace
+        )
+    )
 
+    if task is not None:
+
+        implementation_runner = (
+            ImplementationRunner()
+        )
+
+        implementation_response = (
+            implementation_runner.run(
+                repository=repo,
+                workspace=workspace,
+                source_branch=from_ref,
+                target_branch=to_ref,
+                task=task
+            )
+        )
+    implementation_parser = (
+        ImplementationResponseParser()
+    )
+    
+    generated_files = (
+        implementation_parser.parse(
+            workspace
+        )
+    )
     typer.echo("")
     typer.echo("=" * 50)
     typer.echo("FEATURE INTEGRATION")
@@ -256,8 +294,27 @@ def integrate_feature(
         task_plan_file
     )
     typer.echo("")
-    
-    
+    if task is not None:
+
+        typer.echo(
+            "Implementation Response:"
+        )
+
+        typer.echo(
+            implementation_response
+        )
+
+        typer.echo("")
+        
+        typer.echo(
+            "Generated Files:"
+        )
+        
+        typer.echo(
+            generated_files
+        )
+        
+        typer.echo("")
 @app.command(name="import-plan")
 def import_plan(
     workspace: str = typer.Option(..., "--workspace", help="Workspace da análise"),

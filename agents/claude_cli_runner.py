@@ -20,21 +20,9 @@ class ClaudeCliRunner:
         self
     ) -> str:
 
-        configuration = (
-            self._configuration.load()
-        )
-
         claude_path = (
-            configuration.get(
-                "claude_path"
-            )
+            self._configuration.get_claude_path()
         )
-
-        if not claude_path:
-
-            raise RuntimeError(
-                "Configuração 'claude_path' não encontrada."
-            )
 
         if not Path(
             claude_path
@@ -45,7 +33,7 @@ class ClaudeCliRunner:
             )
 
         return claude_path
-
+  
     def run(
         self,
         workspace_path: str,
