@@ -20,6 +20,8 @@ from agents.change_inspector import (ChangeInspector)
 from agents.instruction_generator import (InstructionGenerator)
 from agents.integration_guide_generator import  IntegrationGuideGenerator
 from agents.implementation_plan_generator import (ImplementationPlanGenerator)
+from agents.prompt_generator import PromptGenerator
+from agents.claude_cli_runner import ClaudeCliRunner
 
 app = typer.Typer()
 
@@ -111,6 +113,120 @@ def generate_prompt(
     typer.echo(output_file)
     typer.echo("")
 
+@app.command(name="integrate-feature")
+def integrate_feature(
+    repo: str = typer.Option(
+        ...,
+        "--repo",
+        help="Repositório Git"
+    ),
+    from_ref: str = typer.Option(
+        ...,
+        "--from",
+        help="Branch origem"
+    ),
+    to_ref: str = typer.Option(
+        ...,
+        "--to",
+        help="Branch destino"
+    ),
+):
+
+    git = GitAnalyzer(
+        repo
+    )
+
+    generator = (
+        AnalysisPackageGenerator(
+            git
+        )
+    )
+
+    workspace = str(
+        generator.generate(
+            from_ref,
+            to_ref
+        )
+    )
+
+    classifier = (
+        IntegrationClassifier()
+    )
+
+    result = (
+        classifier.classify(
+            workspace
+        )
+    )
+
+    prompt_generator = (
+        PromptGenerator()
+    )
+
+    prompt_file = (
+        prompt_generator.generate(
+            workspace
+        )
+    )
+
+    runner = (
+        ClaudeCliRunner()
+    )
+
+    response_file = (
+        runner.run(
+            workspace
+        )
+    )
+
+    session_file = str(
+        Path(
+            workspace
+        ) /
+        "claude-session.md"
+    )
+
+    typer.echo("")
+    typer.echo("=" * 50)
+    typer.echo(
+        "FEATURE INTEGRATION"
+    )
+    typer.echo("=" * 50)
+    typer.echo("")
+
+    typer.echo("Workspace:")
+    typer.echo(workspace)
+    typer.echo("")
+
+    typer.echo("Strategy:")
+    typer.echo(
+        result["strategy"]
+    )
+    typer.echo("")
+
+    typer.echo("Confidence:")
+    typer.echo(
+        result["confidence"]
+    )
+    typer.echo("")
+
+    typer.echo("Prompt:")
+    typer.echo(
+        prompt_file
+    )
+    typer.echo("")
+
+    typer.echo("Claude Response:")
+    typer.echo(
+        response_file
+    )
+    typer.echo("")
+
+    typer.echo("Claude Session:")
+    typer.echo(
+        session_file
+    )
+    typer.echo("")
 
 @app.command(name="import-plan")
 def import_plan(
@@ -742,7 +858,6 @@ def analyze_dependencies(
 
     typer.echo("")
 
-
 @app.command(name="build-scope")
 def build_scope(
     repo: str = typer.Option(..., "--repo", help="Repositório Git"),
@@ -1267,6 +1382,55 @@ def generate_guide(
 
     typer.echo("")
 
+@app.command(name="run-claude")
+def run_claude(
+    workspace: str = typer.Option(
+        ...,
+        "--workspace",
+        help="Diretório da análise"
+    ),
+):
+
+    workspace_path = Path(
+        workspace
+    )
+
+    if not workspace_path.exists():
+
+        raise typer.BadParameter(
+            f"Workspace não encontrado: {workspace}"
+        )
+
+    runner = (
+        ClaudeCliRunner()
+    )
+
+    response_file = (
+        runner.run(
+            workspace
+        )
+    )
+
+    typer.echo("")
+    typer.echo("=" * 50)
+    typer.echo(
+        "CLAUDE EXECUTION"
+    )
+    typer.echo("=" * 50)
+    typer.echo("")
+    typer.echo(
+        f"Response:"
+    )
+    typer.echo(
+        response_file
+    )
+    typer.echo("")
+    typer.echo(
+        "Claude Response:"
+    )
+    typer.echo(
+        response_file
+    )
 
 if __name__ == "__main__":
     app()
