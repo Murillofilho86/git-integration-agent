@@ -23,6 +23,8 @@ from agents.implementation_plan_generator import ImplementationPlanGenerator
 from agents.prompt_generator import PromptGenerator
 from agents.claude_cli_runner import ClaudeCliRunner
 from agents.claude_response_parser import ClaudeResponseParser
+from agents.task_plan_builder import TaskPlanBuilder
+
 
 app = typer.Typer()
 
@@ -119,18 +121,18 @@ def integrate_feature(
     repo: str = typer.Option(
         ...,
         "--repo",
-        help="Repositório Git"
+        help="Caminho do repositório Git"
     ),
     from_ref: str = typer.Option(
         ...,
         "--from",
-        help="Branch origem"
+        help="Branch de origem"
     ),
     to_ref: str = typer.Option(
         ...,
         "--to",
-        help="Branch destino"
-    ),
+        help="Branch de destino"
+    )
 ):
 
     git = GitAnalyzer(
@@ -143,7 +145,7 @@ def integrate_feature(
         )
     )
 
-    workspace = str(
+    workspace = (
         generator.generate(
             from_ref,
             to_ref
@@ -154,7 +156,7 @@ def integrate_feature(
         IntegrationClassifier()
     )
 
-    result = (
+    classification = (
         classifier.classify(
             workspace
         )
@@ -173,35 +175,36 @@ def integrate_feature(
     runner = (
         ClaudeCliRunner()
     )
-    
+
     response_file = (
         runner.run(
             workspace
         )
     )
-    
+
     parser = (
         ClaudeResponseParser()
     )
-    
+
     analysis_file = (
         parser.parse(
             workspace
-        )    
-    )   
-     
-    session_file = str(
-        Path(
+        )
+    )
+
+    task_plan_builder = (
+        TaskPlanBuilder()
+    )
+
+    task_plan_file = (
+        task_plan_builder.build(
             workspace
-        ) /
-        "claude-session.md"
+        )
     )
 
     typer.echo("")
     typer.echo("=" * 50)
-    typer.echo(
-        "FEATURE INTEGRATION"
-    )
+    typer.echo("FEATURE INTEGRATION")
     typer.echo("=" * 50)
     typer.echo("")
 
@@ -211,13 +214,13 @@ def integrate_feature(
 
     typer.echo("Strategy:")
     typer.echo(
-        result["strategy"]
+        classification["strategy"]
     )
     typer.echo("")
 
     typer.echo("Confidence:")
     typer.echo(
-        result["confidence"]
+        classification["confidence"]
     )
     typer.echo("")
 
@@ -235,14 +238,24 @@ def integrate_feature(
 
     typer.echo("Claude Session:")
     typer.echo(
-        session_file
+        Path(workspace) /
+        "claude-session.md"
+    )
+    typer.echo("")
+
+    typer.echo("Integration Analysis:")
+    typer.echo(
+        analysis_file
+    )
+    typer.echo("")
+
+    typer.echo("Task Plan:")
+    typer.echo(
+        task_plan_file
     )
     typer.echo("")
     
-    typer.echo("Integration Analysis:")
-    typer.echo(analysis_file)
-    typer.echo("")
-
+    
 @app.command(name="import-plan")
 def import_plan(
     workspace: str = typer.Option(..., "--workspace", help="Workspace da análise"),

@@ -55,6 +55,14 @@ class PromptGenerator:
                 )
             )
 
+        contract_prompt = (
+            Path(
+                "contracts/ai_contract_v1_prompt.md"
+            ).read_text(
+                encoding="utf-8"
+            )
+        )
+
         prompt = f"""
 # Branch Integration Analysis
 
@@ -99,17 +107,69 @@ Você é um especialista em:
 
 ## Objetivos
 
+Analise todas as informações disponíveis sobre a branch de origem e a branch de destino.
+
 Determine:
 
-1. Estratégia recomendada
-2. Nível de risco
-3. Possíveis conflitos
-4. Complexidade
-5. Plano de execução
-6. Arquivos prioritários
-7. Ordem recomendada de implementação
+- Estratégia de integração recomendada.
+- Nível de risco.
+- Possíveis conflitos.
+- Complexidade.
+- Plano de execução.
+- Arquivos prioritários.
+- Ordem recomendada de implementação.
 
-Retorne apenas JSON.
+---
+
+## Instruções Finais (Obrigatórias)
+
+A resposta será processada automaticamente por outro sistema.
+
+Qualquer divergência do contrato tornará a resposta inválida.
+
+As instruções deste contrato possuem prioridade sobre qualquer outra instrução anterior.
+
+Caso exista qualquer conflito, siga rigorosamente o AI Contract.
+
+Não utilize Markdown.
+
+Não utilize blocos ```json.
+
+Não escreva explicações.
+
+Não escreva comentários.
+
+Não escreva texto antes ou depois do JSON.
+
+As listas abaixo devem conter objetos exatamente na estrutura apresentada.
+
+Não simplifique listas em texto.
+
+Não substitua objetos por strings.
+
+Preencha todos os atributos definidos no contrato, mesmo que alguns permaneçam vazios.
+
+Caso não consiga preencher algum atributo, utilize string vazia ("") ou lista vazia ([]), preservando a estrutura do objeto.
+
+Sua resposta será validada automaticamente.
+
+---
+
+## AI Contract
+
+{contract_prompt}
+
+---
+
+Antes de finalizar sua resposta, valide internamente que:
+
+- Todos os campos obrigatórios existem.
+- Nenhuma propriedade foi renomeada.
+- Nenhum campo obrigatório foi omitido.
+- Nenhuma lista foi substituída por texto.
+- Todas as listas seguem exatamente a estrutura do contrato.
+- O JSON é válido.
+- A resposta contém exclusivamente o JSON solicitado.
 """
 
         output_file = (

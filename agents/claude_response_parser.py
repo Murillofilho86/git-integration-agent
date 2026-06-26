@@ -78,8 +78,40 @@ class ClaudeResponseParser:
 
         try:
 
-            analysis = json.loads(
+            result = (
                 response["result"]
+                .strip()
+            )
+
+            if result.startswith(
+                "```json"
+            ):
+
+                result = (
+                    result[7:]
+                    .strip()
+                )
+
+            if result.startswith(
+                "```"
+            ):
+
+                result = (
+                    result[3:]
+                    .strip()
+                )
+
+            if result.endswith(
+                "```"
+            ):
+
+                result = (
+                    result[:-3]
+                    .strip()
+                )
+
+            analysis = json.loads(
+                result
             )
 
         except json.JSONDecodeError as exception:
