@@ -76,7 +76,11 @@ class ClaudeCliRunner:
         if result.returncode != 0:
 
             raise RuntimeError(
-                result.stderr
+                "Falha ao executar o Claude CLI.\n\n"
+                f"Return Code: {result.returncode}\n\n"
+                f"Command: {claude_path} --print\n\n"
+                f"STDOUT:\n{result.stdout}\n\n"
+                f"STDERR:\n{result.stderr}"
             )
 
         response_json = {

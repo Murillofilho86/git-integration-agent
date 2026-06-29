@@ -45,9 +45,75 @@ class ImplementationResponseParser:
                     f"{expected_type.__name__}."
                 )
 
+    def _validate_task_scope(
+        self,
+        implementation: dict,
+        task: dict
+    ) -> None:
+
+        expected = set(
+            task["files"]
+        )
+
+        returned = {
+            item["path"]
+            for item in implementation[
+                "generated_files"
+            ]
+        }
+
+        if expected != returned:
+
+            missing = sorted(
+                expected - returned
+            )
+
+            extra = sorted(
+                returned - expected
+            )
+
+            message = [
+                "A resposta do Claude não corresponde ao escopo da tarefa.",
+                "",
+                f"Arquivos esperados : {len(expected)}",
+                f"Arquivos retornados: {len(returned)}",
+                ""
+            ]
+
+            if missing:
+
+                message.append(
+                    "Arquivos ausentes:"
+                )
+
+                message.extend(
+                    missing
+                )
+
+                message.append(
+                    ""
+                )
+
+            if extra:
+
+                message.append(
+                    "Arquivos extras:"
+                )
+
+                message.extend(
+                    extra
+                )
+
+            raise RuntimeError(
+                "\n".join(
+                    message
+                )
+            )
+
     def parse(
         self,
-        workspace_path: str
+        workspace_path: str,
+        task: dict
     ) -> str:
 
         workspace = Path(
@@ -93,6 +159,11 @@ class ImplementationResponseParser:
 
         self._validate_contract(
             implementation
+        )
+
+        self._validate_task_scope(
+            implementation,
+            task
         )
 
         generated_directory = (

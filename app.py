@@ -17,7 +17,7 @@ from agents.integration_scope_builder import IntegrationScopeBuilder
 from agents.plan_importer import PlanImporter
 from agents.repository_explorer import RepositoryExplorer
 from agents.target_validator import TargetValidator
-from agents.task_tracker import TaskTracker
+from core.task_tracker import TaskTracker
 from analyzers.git_analyzer import GitAnalyzer
 from classifiers.integration_classifier import IntegrationClassifier
 from generators.analysis_package_generator import AnalysisPackageGenerator
@@ -120,7 +120,6 @@ def generate_prompt(
     typer.echo("Arquivo gerado:")
     typer.echo(output_file)
     typer.echo("")
-
 @app.command(name="integrate-feature")
 def integrate_feature(
     repo: str = typer.Option(
@@ -196,13 +195,7 @@ def integrate_feature(
             workspace
         )
     )
-    tracker = (
-        TaskTracker()
-    )
-    
-    tracker.load_state(
-        workspace
-    )
+
     task_plan_builder = (
         TaskPlanBuilder()
     )
@@ -212,36 +205,20 @@ def integrate_feature(
             workspace
         )
     )
-    task = (
-        tracker.current_task(
-            workspace
-        )
+
+    implementation_runner = (
+        ImplementationRunner()
     )
 
-    if task is not None:
-
-        implementation_runner = (
-            ImplementationRunner()
-        )
-
-        implementation_response = (
-            implementation_runner.run(
-                repository=repo,
-                workspace=workspace,
-                source_branch=from_ref,
-                target_branch=to_ref,
-                task=task
-            )
-        )
-    implementation_parser = (
-        ImplementationResponseParser()
-    )
-    
     generated_files = (
-        implementation_parser.parse(
-            workspace
+        implementation_runner.run(
+            repository=repo,
+            workspace=workspace,
+            source_branch=from_ref,
+            target_branch=to_ref
         )
     )
+
     typer.echo("")
     typer.echo("=" * 50)
     typer.echo("FEATURE INTEGRATION")
@@ -294,27 +271,17 @@ def integrate_feature(
         task_plan_file
     )
     typer.echo("")
-    if task is not None:
 
-        typer.echo(
-            "Implementation Response:"
-        )
+    typer.echo(
+        "Generated Files:"
+    )
 
-        typer.echo(
-            implementation_response
-        )
+    typer.echo(
+        generated_files
+    )
 
-        typer.echo("")
-        
-        typer.echo(
-            "Generated Files:"
-        )
-        
-        typer.echo(
-            generated_files
-        )
-        
-        typer.echo("")
+    typer.echo("")
+    
 @app.command(name="import-plan")
 def import_plan(
     workspace: str = typer.Option(..., "--workspace", help="Workspace da análise"),

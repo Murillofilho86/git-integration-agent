@@ -25,12 +25,34 @@ class GitFileReader:
                 "show",
                 f"{branch}:{file_path}"
             ],
-            capture_output=True,
-            text=True
+            capture_output=True
         )
 
         if result.returncode != 0:
 
             return None
 
-        return result.stdout
+        for encoding in (
+            "utf-8",
+            "utf-8-sig",
+            "cp1252",
+            "latin-1"
+        ):
+
+            try:
+
+                return result.stdout.decode(
+                    encoding
+                )
+
+            except UnicodeDecodeError:
+
+                continue
+
+        raise RuntimeError(
+            (
+                "Não foi possível decodificar "
+                f"'{file_path}' da branch "
+                f"'{branch}'."
+            )
+        )

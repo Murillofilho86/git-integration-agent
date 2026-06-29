@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from agents.task_tracker import (
+from core.task_tracker import (
     TaskTracker
 )
 

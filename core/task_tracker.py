@@ -90,6 +90,44 @@ class TaskTracker:
             state["current"]
         )
 
+    def get_implementation_scope(
+        self,
+        workspace: str
+    ) -> dict:
+
+        task_plan = (
+            self._reader.load(
+                workspace
+            )
+        )
+
+        files = []
+        visited = set()
+
+        for task in task_plan[
+            "tasks"
+        ]:
+
+            for file in task[
+                "files"
+            ]:
+
+                if file in visited:
+
+                    continue
+
+                visited.add(
+                    file
+                )
+
+                files.append(
+                    file
+                )
+
+        return {
+            "files": files
+        }
+
     def total_tasks(
         self,
         workspace: str

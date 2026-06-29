@@ -1,15 +1,6 @@
-from agents.file_snapshot_builder import (
-    FileSnapshotBuilder
-)
-
-from agents.implementation_prompt_generator import (
-    ImplementationPromptGenerator
-)
-
-from agents.claude_cli_runner import (
-    ClaudeCliRunner
-)
-
+from agents.task_plan_reader import TaskPlanReader
+from agents.implementation_executor import ImplementationExecutor
+from agents.generated_files_merger import GeneratedFilesMerger
 
 class ImplementationRunner:
 
@@ -17,16 +8,16 @@ class ImplementationRunner:
         self
     ):
 
-        self._snapshot_builder = (
-            FileSnapshotBuilder()
+        self._reader = (
+            TaskPlanReader()
         )
 
-        self._prompt_generator = (
-            ImplementationPromptGenerator()
+        self._executor = (
+            ImplementationExecutor()
         )
-
-        self._runner = (
-            ClaudeCliRunner()
+       
+        self._merger = (
+            GeneratedFilesMerger()
         )
 
     def run(
@@ -34,30 +25,49 @@ class ImplementationRunner:
         repository: str,
         workspace: str,
         source_branch: str,
-        target_branch: str,
-        task: dict
+        target_branch: str
     ) -> str:
 
-        snapshot = (
-            self._snapshot_builder.build(
-                repository,
-                source_branch,
-                target_branch,
-                task
+        tasks = (
+            self._reader.get_tasks(
+                workspace
             )
         )
 
-        self._prompt_generator.generate(
-            workspace,
-            task,
-            snapshot
+        generated_files_directory = None
+
+        total = len(
+            tasks
         )
 
+        for index, task in enumerate(
+            tasks,
+            start=1
+        ):
+
+            print(
+                f"[{index}/{total}] "
+                f"Implementando: "
+                f"{task['title']}"
+            )
+
+            generated_files_directory = (
+                self._executor.execute(
+                    repository=repository,
+                    workspace=workspace,
+                    source_branch=source_branch,
+                    target_branch=target_branch,
+                    task=task
+                )
+            )
+
+            print(
+                f"[{index}/{total}] "
+                "Concluído."
+            )
+
         return (
-            self._runner.run(
-                workspace,
-                prompt_file="implementation-prompt.md",
-                response_file="implementation-response.json",
-                session_file="implementation-session.md"
+            self._merger.merge(
+                workspace=workspace
             )
         )
