@@ -1,262 +1,206 @@
-# Git Integration Agent - Roadmap Oficial
+# Roadmap
 
-## Visão do Produto
+This document describes the evolution of the Git Integration Agent.
 
-Objetivo:
-
-Analisar uma branch de origem e uma branch de destino para responder:
-
-1. O que mudou?
-2. Quais arquivos precisam ser modificados para integrar a feature?
-3. Como reproduzir essas alterações na branch destino?
-4. Executar a integração assistida por IA.
+The roadmap is divided into milestones rather than dates.
 
 ---
 
-# Sprint 6 - Workspace Structure
+# Vision
 
-Status: Concluída
+Build a deterministic AI-assisted platform capable of performing semantic Git branch integration with minimal human intervention.
 
-Objetivo:
-Separar análises por repositório.
-
-Entregas:
-
-* Estrutura workspace/<projeto>/<branch>*vs*<target>
-* Suporte a múltiplos repositórios
+The long-term objective is to make long-lived branch integration reliable, reproducible and scalable.
 
 ---
 
-# Sprint 7 - Plan Import
+# Current Status
 
-Status: Concluída
+## Completed
 
-Objetivo:
-Importar resposta estruturada do Claude.
+### Repository Analysis
 
-Entregas:
-
-* import-plan
-* ai-analysis.json
-* execution-plan.json
+- Git comparison
+- Metadata generation
+- Change discovery
 
 ---
 
-# Sprint 8 - Plan Navigation
+### Integration Planning
 
-Status: Concluída
-
-Objetivo:
-Permitir navegação do plano.
-
-Entregas:
-
-* show-plan
-* next-task
+- Strategy classification
+- Feature planning
+- Task decomposition
 
 ---
 
-# Sprint 9 - Task Expansion
+### Implementation Pipeline
 
-Status: Concluída
-
-Objetivo:
-Expandir tarefas em arquivos concretos.
-
-Entregas:
-
-* expand-task
-* classificação Criar/Revisar
-* parser de arquivos
-* correções de namespaces
+- Snapshot generation
+- Prompt generation
+- Claude integration
+- Response normalization
+- Contract validation
+- Generated file creation
 
 ---
 
-# Sprint 10 - Repository Explorer
+### Workspace
 
-Status: Concluída
-
-Objetivo:
-Dar contexto real do repositório.
-
-Entregas:
-
-* inspect-file
-* localização física
-* descoberta de arquivos
+- Execution history
+- Independent task storage
+- Generated artifacts
 
 ---
 
-# Sprint 11 - Dependency Explorer
+# In Progress
 
-Status: Concluída
+Current focus areas include:
 
-Objetivo:
-Descobrir dependências relacionadas.
-
-Entregas:
-
-* análise textual de dependências
-* identificação de arquivos impactados
-
-Observação:
-Implementação inicial.
-Dependências ainda não são classificadas semanticamente.
+- prompt optimization
+- execution reliability
+- response validation
+- workflow improvements
 
 ---
 
-# Sprint 12 - Integration Scope Builder
+# Planned Improvements
 
-Status: Concluída
+## Prompt Budget Management
 
-Objetivo:
-Determinar escopo de integração da feature.
+Limit prompt size while preserving implementation quality.
 
-Entregas:
+Benefits:
 
-* build-scope
-* agrupamento por camada
-* Domain
-* Application
-* Infrastructure
-* API
-* Tests
-
-Resultado:
-O agente consegue responder parcialmente:
-
-"Quais arquivos fazem parte desta feature?"
+- more stable responses;
+- lower token usage;
+- better instruction adherence.
 
 ---
 
-# Backlog Priorizado
+## Incremental Snapshot Loading
 
-## Sprint 13 - Scope Consolidation
-
-Status: Planejada
-
-Objetivo:
-Eliminar duplicidades e consolidar escopo único da feature.
-
-Resultado esperado:
-
-Feature Beneficiário
-
-Arquivos únicos: XX
-
-Domain: XX
-Application: XX
-Infrastructure: XX
-Api: XX
-Tests: XX
+Load only the information required by each task.
 
 ---
 
-## Sprint 14 - Change Extraction
+## Resume Execution
 
-Status: Planejada
-
-Objetivo:
-Extrair alterações reais entre origem e destino.
-
-Pergunta respondida:
-
-"O que mudou neste arquivo?"
+Resume interrupted executions without restarting the entire workflow.
 
 ---
 
-## Sprint 15 - Change Classification
+## Retry Pipeline
 
-Status: Planejada
-
-Objetivo:
-Classificar alterações.
-
-Categorias:
-
-* Novo Arquivo
-* Arquivo Alterado
-* Arquivo Removido
-* Contrato Alterado
-* Configuração
+Automatically retry recoverable failures.
 
 ---
 
-## Sprint 16 - Impact Analysis
+## Progress Reporting
 
-Status: Planejada
+Display execution progress for long-running tasks.
 
-Objetivo:
-Descobrir impacto real das mudanças.
+Possible improvements include:
 
-Pergunta respondida:
-
-"Se eu aplicar esta alteração, o que mais precisa mudar?"
-
----
-
-## Sprint 17 - Integration Plan Generator
-
-Status: Planejada
-
-Objetivo:
-Gerar plano técnico executável.
-
-Pergunta respondida:
-
-"Como integrar esta feature?"
+- progress bar
+- elapsed time
+- estimated completion time
 
 ---
 
-## Sprint 18 - AI Coding Agent MVP
+## Task Listing
 
-Status: Planejada
-
-Objetivo:
-Gerar instruções de implementação por arquivo.
-
-Pergunta respondida:
-
-"Como reproduzir esta alteração na branch destino?"
+Commands to inspect planned tasks before execution.
 
 ---
 
-## Sprint 19 - Assisted Implementation
+## Workspace Inspection
 
-Status: Planejada
-
-Objetivo:
-Gerar implementação assistida.
-
-Saída:
-
-* prompts por arquivo
-* prompts por camada
-* prompts por feature
+Utilities for exploring execution artifacts.
 
 ---
 
-## Sprint 20 - Autonomous Integration Agent
+## Validation Improvements
 
-Status: Planejada
+Additional validation stages such as:
 
-Objetivo:
-Executar integração ponta a ponta.
+- prompt validation
+- response quality checks
+- duplicate detection
+- task consistency verification
 
-Fluxo:
+---
 
-Analyze
-↓
-Classify
-↓
-Import Plan
-↓
-Build Scope
-↓
-Extract Changes
-↓
-Generate Integration Plan
-↓
-Generate Implementation
-↓
-Create Pull Request
+## Provider Abstraction
+
+Support additional language models beyond the current provider.
+
+Potential future integrations include:
+
+- OpenAI
+- Anthropic APIs
+- local models
+- enterprise providers
+
+---
+
+## Performance
+
+Future optimizations:
+
+- parallel execution
+- incremental caching
+- smarter snapshot generation
+
+---
+
+# Long-Term Goals
+
+The project aims to become a complete semantic integration platform.
+
+Future capabilities may include:
+
+- graphical interface;
+- merge visualization;
+- semantic conflict explorer;
+- execution dashboards;
+- collaborative review workflows.
+
+---
+
+# Guiding Principles
+
+Future development should preserve:
+
+- deterministic orchestration;
+- explicit AI contracts;
+- modular architecture;
+- reproducible executions;
+- isolated responsibilities.
+
+These principles take precedence over adding new features.
+
+---
+
+# Contributing
+
+Every roadmap item should be evaluated according to:
+
+- architectural consistency;
+- implementation complexity;
+- expected user value;
+- long-term maintainability.
+
+New features should strengthen the existing architecture rather than increase complexity unnecessarily.
+
+---
+
+# Next Steps
+
+After completing the documentation, future work should focus on:
+
+1. Improving execution robustness.
+2. Reducing prompt size.
+3. Enhancing AI response reliability.
+4. Expanding provider support.
+5. Preparing the project for an initial public release.
