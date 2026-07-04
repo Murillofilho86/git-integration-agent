@@ -1,0 +1,199 @@
+# Troubleshooting
+
+This document describes common issues that may occur while using the Git Integration Agent.
+
+Each issue includes its symptoms, possible causes and recommended solutions.
+
+---
+
+# Claude Session Expired
+
+## Symptoms
+
+The execution stops before producing generated files.
+
+## Cause
+
+The Claude CLI session is no longer authenticated.
+
+## Solution
+
+Authenticate again using the Claude CLI.
+
+After authentication, rerun the failed task.
+
+---
+
+# AI Returned an Invalid Response
+
+## Symptoms
+
+The parser reports an invalid response.
+
+## Cause
+
+The AI did not follow the expected response contract.
+
+## Solution
+
+Inspect:
+
+- implementation-response.original.json
+- implementation-response.json
+- implementation-session.md
+
+Determine whether the issue originated from:
+
+- prompt construction;
+- transport artifacts;
+- response formatting.
+
+---
+
+# Missing Generated Files
+
+## Symptoms
+
+Expected files are not present.
+
+## Possible Causes
+
+- task execution failed;
+- parser validation failed;
+- incomplete AI response.
+
+## Solution
+
+Review the execution history for the affected task.
+
+---
+
+# Duplicate Generated Files
+
+## Symptoms
+
+Two different tasks generate the same file.
+
+## Cause
+
+Task decomposition produced overlapping scopes.
+
+## Solution
+
+Review the task plan.
+
+Each source file should belong to exactly one implementation task.
+
+---
+
+# Large Prompt Size
+
+## Symptoms
+
+The language model ignores instructions or produces inconsistent responses.
+
+## Cause
+
+The prompt contains excessive context.
+
+## Solution
+
+Reduce prompt size by:
+
+- improving task decomposition;
+- limiting snapshot size;
+- introducing prompt budget management.
+
+---
+
+# Interrupted Execution
+
+## Symptoms
+
+Execution stops unexpectedly.
+
+## Solution
+
+Correct the issue and rerun only the failed task.
+
+Previously completed tasks do not need to be regenerated.
+
+---
+
+# Workspace Corruption
+
+## Symptoms
+
+Unexpected execution artifacts.
+
+## Solution
+
+Delete the workspace and generate a fresh execution.
+
+```bash
+rm -rf workspace
+```
+
+---
+
+# Missing Dependencies
+
+## Symptoms
+
+Import errors or missing modules.
+
+## Solution
+
+Reinstall project dependencies.
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Virtual Environment Not Activated
+
+## Symptoms
+
+Python cannot locate installed packages.
+
+## Solution
+
+Activate the virtual environment.
+
+Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+---
+
+# Reporting Issues
+
+When reporting a problem, include:
+
+- command executed;
+- complete error message;
+- relevant workspace artifacts;
+- operating system;
+- Python version.
+
+Avoid sharing confidential repository information.
+
+---
+
+# Next Document
+
+Continue with:
+
+```
+roadmap.md
+```
