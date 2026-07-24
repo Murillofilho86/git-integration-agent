@@ -3,6 +3,33 @@ from pathlib import Path
 
 class RepositoryExplorer:
 
+    SKIP_DIRECTORIES = {
+        "node_modules",
+        ".git",
+        "bin",
+        "obj",
+        "dist",
+        "build",
+        "out",
+        "target",
+        "__pycache__",
+        ".venv",
+        "venv",
+        ".next",
+        ".nuxt",
+        ".idea",
+        ".vscode"
+    }
+
+    BINARY_EXTENSIONS = {
+        ".png", ".jpg", ".jpeg", ".gif", ".ico", ".webp", ".bmp",
+        ".svg", ".woff", ".woff2", ".ttf", ".eot", ".otf",
+        ".pdf", ".zip", ".gz", ".tar", ".7z", ".rar",
+        ".exe", ".dll", ".so", ".dylib", ".pyc", ".class", ".jar",
+        ".mp3", ".mp4", ".mov", ".avi", ".wav",
+        ".map", ".lock"
+    }
+
     def find_file(
         self,
         repo_path: str,
@@ -15,6 +42,24 @@ class RepositoryExplorer:
             repo.rglob(filename)
         )
 
+    def _is_skipped(
+        self,
+        file: Path
+    ) -> bool:
+
+        if any(
+            part in self.SKIP_DIRECTORIES
+            for part in file.parts
+        ):
+
+            return True
+
+        if file.suffix.lower() in self.BINARY_EXTENSIONS:
+
+            return True
+
+        return False
+
     def find_dependents(
         self,
         repo_path: str,
@@ -23,12 +68,9 @@ class RepositoryExplorer:
 
         repo = Path(repo_path)
 
-        target_name = (
+        target_name = Path(
             filename
-            .replace(".cs", "")
-            .replace(".ts", "")
-            .replace(".tsx", "")
-        )
+        ).stem
 
         dependents = set()
 
@@ -40,11 +82,7 @@ class RepositoryExplorer:
             if file.name == filename:
                 continue
 
-            if file.suffix not in {
-                ".cs",
-                ".ts",
-                ".tsx"
-            }:
+            if self._is_skipped(file):
                 continue
 
             try:
