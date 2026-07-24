@@ -136,6 +136,15 @@ def integrate_feature(
         ...,
         "--to",
         help="Branch de destino"
+    ),
+    resume: bool = typer.Option(
+        False,
+        "--resume",
+        help=(
+            "Continua uma execução anterior a partir "
+            "da última tarefa pendente, sem regenerar "
+            "análise, classificação ou plano."
+        )
     )
 ):
 
@@ -148,6 +157,73 @@ def integrate_feature(
             git
         )
     )
+
+    implementation_runner = (
+        ImplementationRunner()
+    )
+
+    if resume:
+
+        workspace_path = (
+            generator.resolve_path(
+                from_ref,
+                to_ref
+            )
+        )
+
+        if not (
+            workspace_path /
+            "task-plan.json"
+        ).exists():
+
+            raise typer.BadParameter(
+                "Nenhuma execução anterior encontrada "
+                "para retomar. Rode sem --resume primeiro."
+            )
+
+        workspace = str(
+            workspace_path
+        )
+
+        try:
+
+            generated_files = (
+                implementation_runner.run(
+                    repository=repo,
+                    workspace=workspace,
+                    source_branch=from_ref,
+                    target_branch=to_ref,
+                    resume=True
+                )
+            )
+
+        except RuntimeError as error:
+
+            typer.echo("")
+            typer.echo(str(error))
+            typer.echo("")
+            typer.echo(
+                "Rode novamente com --resume para "
+                "continuar a partir desta tarefa."
+            )
+
+            raise typer.Exit(code=1)
+
+        typer.echo("")
+        typer.echo("=" * 50)
+        typer.echo("FEATURE INTEGRATION (RESUMED)")
+        typer.echo("=" * 50)
+        typer.echo("")
+
+        typer.echo("Workspace:")
+        typer.echo(workspace)
+        typer.echo("")
+
+        typer.echo("Generated Files:")
+        typer.echo(generated_files)
+        typer.echo("")
+
+        return
 
     workspace = (
         generator.generate(
@@ -206,18 +282,29 @@ def integrate_feature(
         )
     )
 
-    implementation_runner = (
-        ImplementationRunner()
-    )
+    try:
 
-    generated_files = (
-        implementation_runner.run(
-            repository=repo,
-            workspace=workspace,
-            source_branch=from_ref,
-            target_branch=to_ref
+        generated_files = (
+            implementation_runner.run(
+                repository=repo,
+                workspace=workspace,
+                source_branch=from_ref,
+                target_branch=to_ref,
+                resume=False
+            )
         )
-    )
+
+    except RuntimeError as error:
+
+        typer.echo("")
+        typer.echo(str(error))
+        typer.echo("")
+        typer.echo(
+            "Rode novamente com --resume para "
+            "continuar a partir desta tarefa."
+        )
+
+        raise typer.Exit(code=1)
 
     typer.echo("")
     typer.echo("=" * 50)
@@ -281,7 +368,7 @@ def integrate_feature(
     )
 
     typer.echo("")
-    
+
 @app.command(name="import-plan")
 def import_plan(
     workspace: str = typer.Option(..., "--workspace", help="Workspace da análise"),

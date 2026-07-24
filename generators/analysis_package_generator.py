@@ -25,6 +25,47 @@ class AnalysisPackageGenerator:
             .replace(":", "_")
         )
 
+    def resolve_path(
+        self,
+        source_ref: str,
+        target_ref: str,
+        repository_profile: dict | None = None
+    ) -> Path:
+
+        if repository_profile is None:
+
+            repository_profile = (
+                self.git.get_repository_profile()
+            )
+
+        repository_name = (
+            repository_profile[
+                "repository_name"
+            ]
+        )
+
+        workspace_dir = (
+            Path("workspace") /
+            repository_name
+        )
+
+        source_name = (
+            self.sanitize_ref_name(
+                source_ref
+            )
+        )
+
+        target_name = (
+            self.sanitize_ref_name(
+                target_ref
+            )
+        )
+
+        return (
+            workspace_dir /
+            f"{source_name}_vs_{target_name}"
+        )
+
     def generate(
         self,
         source_ref: str,
@@ -49,40 +90,16 @@ class AnalysisPackageGenerator:
             self.git.get_repository_profile()
         )
 
-        repository_name = (
-            repository_profile[
-                "repository_name"
-            ]
-        )
-
-        workspace_dir = (
-            Path("workspace") /
-            repository_name
-        )
-
-        workspace_dir.mkdir(
-            parents=True,
-            exist_ok=True
-        )
-
-        source_name = (
-            self.sanitize_ref_name(
-                source_ref
-            )
-        )
-
-        target_name = (
-            self.sanitize_ref_name(
-                target_ref
-            )
-        )
-
         analysis_dir = (
-            workspace_dir /
-            f"{source_name}_vs_{target_name}"
+            self.resolve_path(
+                source_ref,
+                target_ref,
+                repository_profile
+            )
         )
 
         analysis_dir.mkdir(
+            parents=True,
             exist_ok=True
         )
 

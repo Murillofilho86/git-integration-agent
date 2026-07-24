@@ -76,6 +76,19 @@ class TaskTracker:
             encoding="utf-8"
         )
 
+    def reset_state(
+        self,
+        workspace: str
+    ) -> None:
+
+        self.save_state(
+            workspace,
+            {
+                "current": 0,
+                "completed": []
+            }
+        )
+
     def current_task(
         self,
         workspace: str

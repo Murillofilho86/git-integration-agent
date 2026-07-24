@@ -1,4 +1,6 @@
 from pathlib import Path
+import shutil
+import time
 
 
 class ImplementationWorkspace:
@@ -44,6 +46,68 @@ class ImplementationWorkspace:
         )
 
         return directory
+
+    def task_directory_has_content(
+        self,
+        task_id: int
+    ) -> bool:
+
+        directory = (
+            self.history_directory() /
+            f"task-{task_id:03d}"
+        )
+
+        if not directory.exists():
+
+            return False
+
+        return any(
+            directory.iterdir()
+        )
+
+    def failed_history_directory(
+        self
+    ) -> Path:
+
+        directory = (
+            self._workspace /
+            "implementation-history-failed"
+        )
+
+        directory.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        return directory
+
+    def archive_task_directory(
+        self,
+        task_id: int
+    ) -> Path | None:
+
+        if not self.task_directory_has_content(
+            task_id
+        ):
+
+            return None
+
+        directory = (
+            self.history_directory() /
+            f"task-{task_id:03d}"
+        )
+
+        destination = (
+            self.failed_history_directory() /
+            f"task-{task_id:03d}-{int(time.time())}"
+        )
+
+        shutil.move(
+            str(directory),
+            str(destination)
+        )
+
+        return destination
 
     def generated_files_directory(
         self,
