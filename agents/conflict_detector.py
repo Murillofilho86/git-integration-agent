@@ -112,14 +112,16 @@ class ConflictDetector:
         target_content: str
     ) -> str:
 
-        route = (
-            item
-            .split(
-                ":",
-                maxsplit=1
-            )[1]
-            .strip()
+        parts = item.split(
+            ":",
+            maxsplit=1
         )
+
+        if len(parts) != 2:
+
+            return "UNKNOWN"
+
+        route = parts[1].strip()
 
         if route in target_content:
 
@@ -223,12 +225,17 @@ class ConflictDetector:
             .strip()
         )
 
-        method_name = (
+        name_tokens = (
             signature
             .split("(")[0]
             .split()
-            [-1]
         )
+
+        if not name_tokens:
+
+            return "UNKNOWN"
+
+        method_name = name_tokens[-1]
 
         if method_name in target_content:
 

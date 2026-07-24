@@ -1,9 +1,4 @@
 {
-    "claude": {
-        "path": "/path/to/claude"
-    },
-
-    "workspace": {
-        "root": "workspace"
-    }
+    "claude_path": "/path/to/claude",
+    "workspace_root": "workspace"
 }
